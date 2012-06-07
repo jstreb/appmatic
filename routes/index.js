@@ -4,6 +4,10 @@ var ACCOUNT_ID = "665003303001";
 var ACCOUNT_LIMIT_IN_GB = 40;
 var MEDIA_API_TOKEN = "7kITGpNoLcepAAN-8u7b--bguf8F_S5pxbVFh7l8ihCoiMkqltT0JA..";
 var TIMES = [720, 1440, 10080];
+var viralSent = false;
+var usageWarningPending = false;
+var usageExceeded = false;
+var limitTreshhold = .1;
 
 var cached = { 
   "720cache": 0
@@ -11,13 +15,42 @@ var cached = {
 , "10080cache": 0
 };
 
+var usageCache = {};
+
 //Keep refreshing this data
-setInterval( makeMetricCalls, 180000);
+setInterval( makeMetricCalls, 120000);
+
+setInterval( checkUsage, 60000 );
 
 function makeMetricCalls() {
   for( var i=0; i<TIMES.length; i++) {
      fetchMetrics( TIMES[i]);
    }
+}
+
+function checkUsage() {
+  var to = new Date().getTime();
+  var from = to - (43200 * 1000 * 60);
+  makeAPICall('/analytics-api/data/videocloud/account/' + ACCOUNT_ID + "?from=" + from + "&to=" + to, function( data ) {
+    usageCache = JSON.parse( data );
+    var bytes = usageCache.data.bytes_out;
+    var total = 0;
+    for( var i in bytes ) {
+      total += bytes[i] / 1024 / 1024;
+    }
+    total = total / 1024;
+    if( total > ACCOUNT_LIMIT_IN_GB && !usageExceeded ) {
+      usageExceeded = true;
+      console.log( "exceeded limits!");
+      return;
+    }
+    
+    if( total > ACCOUNT_LIMIT_IN_GB * limitTreshhold && !usageWarningPending) {
+      usageWarningPending = true;
+      console.log( "pending" );
+      return;
+    }
+  });
 }
 
 var makeAPICall = function(path, callback){
@@ -86,13 +119,13 @@ function mergeData( vc, ac ) {
   for( var i=0, len=ac.length; i<len; i++ ) {
     for( var j=0, max=vc.length; j<max; j++ ) {
       if( ac[i].video == vc[j].id ) {
-        
         videos.push( 
           {
             id: vc[j].id,
             title: vc[j].name,
             description: vc[j].shortDescription,
             still: vc[j].videoStillURL,
+            video: vc[j].FLVURL,
             views: makeArray( ac[i].data.video_view ),
             impressions: makeArray( ac[i].data.video_impression )
           }
@@ -113,6 +146,24 @@ function formatData( vc, ac, al, to, from ) {
   ret.videos =  mergeData( vc, ac );
   
  return ret;
+}
+
+//Check to see if we went viral by looking at the data viewed this hour compared to an hour ago.
+function philDumphy( data ) {
+  var start;
+  var end;
+  
+  for( var i=0, len=data.length; i<len; i++ ) {
+    start = makeArray( data[i].data.video_view )[0];
+    end = makeArray( data[i].data.video_view )[22];
+    
+    if( Math.abs( start - end ) > start * .3 ) {
+      if( start < end && !viralSent ) {
+        viralSent = true;
+        console.log( "WE WENT VIRAL!" );
+      }
+    }
+  }
 }
 
 function fetchMetrics( from ) {
@@ -136,13 +187,16 @@ function fetchMetrics( from ) {
     videoMetrics = JSON.parse( aData );
     videoIDs = getVideoIDs( videoMetrics ).join( "%2C" );
     
+    //If we got data from the past 24 hours check to see if we went viral.
+    if( cacheKey === "10080cache" ) {
+      philDumphy( videoMetrics );
+    }
+    
     //Make request for top ten videos
-    makeMediaAPICall( "/services/library?command=find_videos_by_ids&token=" + MEDIA_API_TOKEN + "&video_ids=" + videoIDs + "&video_fields=id%2Cname%2CvideoStillURL%2CshortDescription&get_item_count=true", function(data) {
+    makeMediaAPICall( "/services/library?command=find_videos_by_ids&token=" + MEDIA_API_TOKEN + "&video_ids=" + videoIDs + "&media_delivery=http_ios&video_fields=id%2Cname%2CvideoStillURL%2CFLVURL%2CshortDescription&get_item_count=true", function(data) {
       metaData = JSON.parse( data ).items;
       if( accountMetrics ) {
-        if( metaData ) {
-          cached[cacheKey] = formatData( metaData, videoMetrics, accountMetrics, to, from );
-        }
+        cached[cacheKey] = formatData( metaData, videoMetrics, accountMetrics, to, from );
       }
     });
   });
@@ -160,22 +214,10 @@ exports.metrics = function(req, res){
   res.send( cached[cacheKey] );
 };
 
+exports.usage = function(req, res){
+  res.send( usageCache );
+};
+
 makeMetricCalls();
 
-exports.usage = function(req, res){
-  var to = new Date().getTime();
-  var from = to - (43200 * 1000 * 60);
-  makeAPICall('/analytics-api/data/videocloud/account/' + ACCOUNT_ID + "?from=" + from + "&to=" + to, function( data ) {
-    res.send( data );
-    return;
-    var bytes = JSON.parse(data).data.bytes_out;
-    var total = 0;
-    for( var i in bytes ) {
-      console.log( bytes[i]);
-      total += bytes[i] / 1024 / 1024;
-    }
-    total = total / 1024;
-    console.log( total );
-    res.send(JSON.parse(data).data.bytes_out);
-  });
-}
+checkUsage();
