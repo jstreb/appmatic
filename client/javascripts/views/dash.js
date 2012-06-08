@@ -1,5 +1,5 @@
 function Dashboard() {
-    var BASE_URL = "http://localhost:3000";
+    var BASE_URL = "http://furious-mountain-8079.herokuapp.com";
     var SERIES_URL = BASE_URL + "/metrics/";
     var SETTINGS_URL = BASE_URL + "/settings";
 
