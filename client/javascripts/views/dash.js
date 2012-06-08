@@ -286,13 +286,13 @@ function Pushnotification() {
     function handlePushNotification( data ) {
        var meta = data.params;
        
-       if( meta && meta.type === "usage" ) {
-         //show Jeremy
+       if( meta && meta.type === "quota" ) {
+        bc.device.openURI( "http://i.imgur.com/6v4gQ.gif" );
          return;
        }
        
        if( meta && meta.type === "viral" ) {
-         //show phil
+         bc.device.openURI( "http://i.imgur.com/kodRQ.gif" );
          return;
        }
     }
