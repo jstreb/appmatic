@@ -108,8 +108,6 @@ function Dashboard() {
         var chart = getChart();
         var range = getRange();
 
-        console.log("!!!", chart);
-        // TODO
         new BrightcoveChart(seriesData, chart);
     };
 
@@ -168,7 +166,9 @@ function Dashboard() {
 }
 
 function BrightcoveChart(seriesData, chartType) {
+    var heavy = seriesData.views.length > 24;
     var views = [];
+
     if (chartType === "line") {
         // views.push({
         //     "name": "Total views",
@@ -220,7 +220,10 @@ function BrightcoveChart(seriesData, chartType) {
                 stacking: "normal"
             },
             line: {
-                animation: seriesData.views.length <= (24 * 60)
+                animation: !heavy,
+                marker: {
+                    enabled: !heavy
+                }
             }
         },
         legend: {
