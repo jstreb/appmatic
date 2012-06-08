@@ -166,20 +166,25 @@ function Dashboard() {
 }
 
 function BrightcoveChart(seriesData, chartType) {
-    var heavy = seriesData.views.length > 24;
-    var views = [];
+    var interval = 3600000;
+    var isWeekView = seriesData.views.length > 24;
+    var series = [];
 
     if (chartType === "line") {
-        // views.push({
+        // series.push({
         //     "name": "Total views",
-        //     "data": seriesData.views
+        //     "data": seriesData.views,
+        //     "pointStart": seriesData.start,
+        //     "pointInterval": 60 * 60 * 1000
         // });
     }
 
     for (var i = 0; i < Math.min(5, seriesData.videos.length); i++) {
-        views.push({
-            "name": seriesData.videos[i].title.substr(0, 25),
-            "data": seriesData.videos[i].views
+        series.push({
+            "name": seriesData.videos[i].title,
+            "data": seriesData.videos[i].views,
+            "pointStart": seriesData.start,
+            "pointInterval": interval
         });
     }
 
@@ -197,8 +202,7 @@ function BrightcoveChart(seriesData, chartType) {
             text: null
         },
         xAxis: {
-            // TODO
-            //categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+            type: "datetime"
         },
         yAxis: {
             title: {
@@ -212,7 +216,7 @@ function BrightcoveChart(seriesData, chartType) {
         },
         tooltip: {
             formatter: function() {
-                return "<b>"+ this.series.name +"</b><br/>"+ this.x +": "+ this.y;
+                return "<b>"+ Mark.pipes.chop(this.series.name, 25) + "</b><br/>" + this.y + " views";
             }
         },
         plotOptions: {
@@ -220,9 +224,9 @@ function BrightcoveChart(seriesData, chartType) {
                 stacking: "normal"
             },
             line: {
-                animation: !heavy,
+                animation: !isWeekView,
                 marker: {
-                    enabled: !heavy
+                    enabled: !isWeekView
                 }
             }
         },
@@ -232,9 +236,12 @@ function BrightcoveChart(seriesData, chartType) {
             verticalAlign: "top",
             x: -10,
             y: 100,
-            borderWidth: 0
+            borderWidth: 0,
+            labelFormatter: function() {
+                return Mark.pipes.chop(this.name, 20);
+            }
         },
-        series: views
+        series: series
     });
 }
 
