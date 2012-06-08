@@ -4,6 +4,9 @@ function Dashboard() {
     var SERIES_URL = BASE_URL + "/metrics/";
     var SETTINGS_URL = BASE_URL + "/settings";
 
+    var chart = "overall";
+    var range = 12;
+
     var seriesData = null;
     var usageData = null;
     var editing = false;
@@ -11,7 +14,7 @@ function Dashboard() {
     this.init = function () {
         initListeners();
 
-        restoreState();
+        initState();
 
         loadUsageData();
     };
@@ -24,10 +27,7 @@ function Dashboard() {
         $("body").on("tap", ".results li", handleVideoTap);
     };
 
-    var restoreState = function () {
-        var chart = getChart();
-        var range = getRange();
-
+    var initState = function () {
         setOption("chart-opts", chart);
         setOption("range-opts", range);
 
@@ -51,6 +51,8 @@ function Dashboard() {
     };
 
     var handleSeriesData = function (data) {
+        console.log("series data loaded");
+
         hideLoadingMessage();
 
         try {
@@ -65,9 +67,16 @@ function Dashboard() {
     };
 
     var handleUsageData = function (data) {
-        usageData = data;
+        console.log("usage data loaded");
 
-        loadSeriesData(getRange());
+        try {
+            usageData = JSON.parse(data);
+        }
+        catch (e) {
+            usageData = data;
+        }
+
+        loadSeriesData(range);
     };
 
     var handleError = function (error) {
@@ -75,10 +84,10 @@ function Dashboard() {
     };
 
     var handleChartSelection = function (evt) {
-        var chart = this.getAttribute("data-val");
+        var _chart = this.getAttribute("data-val");
 
-        if (chart !== getChart()) {
-            bc.core.cache("chart", chart);
+        if (chart !== _chart) {
+            chart = _chart;
 
             toggleOption($("#chart-opts li"), $(this));
 
@@ -89,10 +98,10 @@ function Dashboard() {
     };
 
     var handleRangeSelection = function (evt) {
-        var range = this.getAttribute("data-val");
+        var _range = this.getAttribute("data-val");
 
-        if (range !== getRange()) {
-            bc.core.cache("range", range);
+        if (range !== _range) {
+            range = _range;
 
             toggleOption($("#range-opts li"), $(this));
 
@@ -144,15 +153,10 @@ function Dashboard() {
     };
 
     var renderChart = function () {
-        var chartType = getChart();
-        var chartData = chartType === "io" ? usageData : seriesData;
-
-        new BrightcoveChart(chartData, chartType);
+        new BrightcoveChart(chart === "io" ? usageData : seriesData, chart);
     };
 
     var renderList = function () {
-        console.log("render list");
-
         var template = bc.templates["top-ten"];
         var context = seriesData;
         var markup = Mark.up(template, context);
@@ -182,14 +186,6 @@ function Dashboard() {
         for (var i = 0; i < videos.length; i++) {
             Bar(elems[i], Mark.pipes.total(videos[i].views) / total);
         }
-    };
-
-    var getChart = function () {
-        return bc.core.cache("chart") || "overall";
-    };
-
-    var getRange = function () {
-        return bc.core.cache("range") || 12;
     };
 
     var showLoadingMessage = function () {
@@ -231,10 +227,12 @@ function BrightcoveChart(chartData, chartType) {
         var bytesOut = [];
         var bytesOverhead = [];
         var points;
+        var p;
 
         points = chartData.data.bytes_in;
-        for (var i in points) {
-            bytesIn.push([parseInt(i), points[i]]);
+
+        for (p in points) {
+            bytesIn.push([parseInt(p), points[p]]);
         }
         series.push({
             "name": "Bytes In",
@@ -242,8 +240,8 @@ function BrightcoveChart(chartData, chartType) {
         });
 
         points = chartData.data.bytes_out;
-        for (var i in points) {
-            bytesOut.push([parseInt(i), points[i]]);
+        for (p in points) {
+            bytesOut.push([parseInt(p), points[p]]);
         }
         series.push({
             "name": "Bytes Out",
@@ -251,8 +249,8 @@ function BrightcoveChart(chartData, chartType) {
         });
 
         points = chartData.data.bytes_overhead;
-        for (var i in points) {
-            bytesOverhead.push([parseInt(i), points[i]]);
+        for (p in points) {
+            bytesOverhead.push([parseInt(p), points[p]]);
         }
         series.push({
             "name": "Bytes Overhead",
@@ -278,7 +276,7 @@ function BrightcoveChart(chartData, chartType) {
             dateTimeLabelFormats: {
                 second: '%H:%M:%S',
                 minute: '%H:%M',
-                hour: '%I:%M%P',
+                hour: '%l:%M%P',
                 day: '%b %e',
                 week: '%b %e',
                 month: '%b \'%y',
