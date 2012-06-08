@@ -16,7 +16,9 @@ function Dashboard() {
 
         initState();
 
-        loadUsageData();
+        setTimeout(function () {
+            loadUsageData();
+        }, 500);
     };
 
     var initListeners = function () {
