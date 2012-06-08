@@ -17,6 +17,7 @@ function Dashboard() {
         initState();
 
         loadUsageData();
+
     };
 
     var initListeners = function () {
@@ -342,20 +343,11 @@ Mark.pipes.accounting = function (num) {
     return Highcharts.numberFormat(num, 0);
 };
 
-function Pushnotification() {
-    $( bc ).bind( "pushnotification", handlePushNotification );
-    
-    function handlePushNotification( data ) {
-       var meta = data.params;
-       
-       if( meta && meta.type === "quota" ) {
-        bc.device.openURI( "http://i.imgur.com/6v4gQ.gif" );
-         return;
-       }
-       
-       if( meta && meta.type === "viral" ) {
-         bc.device.openURI( "http://i.imgur.com/kodRQ.gif" );
-         return;
-       }
-    }
+function handlePushNotification( event, data ) {
+    setTimeout( function() {
+        bc.device.openURI( "http://i.imgur.com/kodRQ.gif", function(){}, function(){}, { modalWebBrowser: true });   
+    }, 1000 );
 }
+
+$( bc ).bind( "pushnotification", handlePushNotification );
+    

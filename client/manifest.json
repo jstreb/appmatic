@@ -3,8 +3,8 @@
     "description": "Hackathon Demo",
     "version": "1.0",
     "devices": [
-        "iPhone",
-        "Android"
+        "iPad",
+        "Android Tablet"
     ],
     "platformConfig": {
         "android": {

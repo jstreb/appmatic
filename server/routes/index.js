@@ -22,9 +22,9 @@ var cached = {
 var usageCache = {};
 
 //Keep refreshing this data
-setInterval( makeMetricCalls, 180000);
+setInterval( makeMetricCalls, 60000);
 
-setInterval( checkUsage, 180000 );
+setInterval( checkUsage, 60000 );
 
 function makeMetricCalls() {
   for( var i=0; i<TIMES.length; i++) {
@@ -258,6 +258,8 @@ exports.settings = function( req, res ) {
   var settings = req.body;
   limitThreshold = (100 - parseInt( settings.limitThreshold.split( " percent" )[0] )) / 100;
   viralThreshold = parseInt( settings.viralThreshold.split( " percent" )[0] ) / 100;
+  console.log( "limit: " + limitThreshold );
+  console.log( "viral: " + viralThreshold );
   res.send( { "status": "success" } );
 }
 
