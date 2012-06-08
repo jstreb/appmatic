@@ -117,11 +117,6 @@ nav li.current {
     text-align: right;
 }
 
-#viz {
-    background-color: #333;
-    height: 250px;
-}
-
 .loading {
     background-color: red;
     color: white;
@@ -201,4 +196,16 @@ nav li.current {
 .video-impressions {
     font-size: 90%;
     color: #888;
+}
+
+@media all and (orientation: portrait) {
+    #chart {
+        height: 400px;
+    }
+}
+
+@media all and (orientation: landscape) {
+    #chart {
+        height: 325px;
+    }
 }
