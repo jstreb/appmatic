@@ -45,11 +45,11 @@ function checkUsage() {
     }
     total = total / 1024;
     
-    if( total > ACCOUNT_LIMIT_IN_GB * limitThreshold && !usageWarningPending) {
-      usageWarningPending = true;
-      sendPushMessage( "Ruh-roh, you are approaching your limit.", [{"key": "type", "value": "quota" }] );
-      return;
-    }
+    // if( total > ACCOUNT_LIMIT_IN_GB * limitThreshold && !usageWarningPending) {
+    //   usageWarningPending = true;
+    //   sendPushMessage( "Ruh-roh, you are approaching your limit.", [{"key": "type", "value": "quota" }] );
+    //   return;
+    // }
   });
 }
 
