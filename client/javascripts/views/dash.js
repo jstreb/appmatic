@@ -20,6 +20,7 @@ function Dashboard() {
         $("#range-opts li").on("tap", handleRangeSelection);
         $("#settings-button").on("tap", handleSettingsTap);
         $(".save-button").on("tap", handleSaveSettings);
+        $("body").on("tap", ".results li", handleVideoTap);
     };
 
     var restoreState = function () {
