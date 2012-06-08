@@ -1,5 +1,6 @@
 function Dashboard() {
     var BASE_URL = "http://furious-mountain-8079.herokuapp.com";
+    var USAGE_URL = BASE_URL + "/usage/";
     var SERIES_URL = BASE_URL + "/metrics/";
     var SETTINGS_URL = BASE_URL + "/settings";
 
@@ -12,7 +13,7 @@ function Dashboard() {
 
         restoreState();
 
-        loadSeriesData(getRange());
+        loadUsageData();
     };
 
     var initListeners = function () {
@@ -24,8 +25,19 @@ function Dashboard() {
     };
 
     var restoreState = function () {
-        setOption("chart-opts", getChart());
-        setOption("range-opts", getRange());
+        var chart = getChart();
+        var range = getRange();
+
+        setOption("chart-opts", chart);
+        setOption("range-opts", range);
+
+        $("#range-opts").toggle(chart !== "io");
+    };
+
+    var loadUsageData = function () {
+        console.log("Loading " + USAGE_URL);
+
+        bc.device.fetchContentsOfURL(USAGE_URL, handleUsageData, handleError);
     };
 
     var loadSeriesData = function (range) {
@@ -35,7 +47,7 @@ function Dashboard() {
 
         console.log("Loading: " + url);
 
-        bc.device.fetchContentsOfURL(url, handleSeriesData, handleSeriesError);
+        bc.device.fetchContentsOfURL(url, handleSeriesData, handleError);
     };
 
     var handleSeriesData = function (data) {
@@ -52,7 +64,13 @@ function Dashboard() {
         renderList();
     };
 
-    var handleSeriesError = function (error) {
+    var handleUsageData = function (data) {
+        usageData = data;
+
+        loadSeriesData(getRange());
+    };
+
+    var handleError = function (error) {
         console.log(error);
     };
 
@@ -63,6 +81,8 @@ function Dashboard() {
             bc.core.cache("chart", chart);
 
             toggleOption($("#chart-opts li"), $(this));
+
+            $("#range-opts").toggle(chart !== "io");
 
             renderChart();
         }
@@ -124,12 +144,10 @@ function Dashboard() {
     };
 
     var renderChart = function () {
-        console.log("render chart");
+        var chartType = getChart();
+        var chartData = chartType === "io" ? usageData : seriesData;
 
-        var chart = getChart();
-        var range = getRange();
-
-        new BrightcoveChart(seriesData, chart);
+        new BrightcoveChart(chartData, chartType);
     };
 
     var renderList = function () {
@@ -167,11 +185,11 @@ function Dashboard() {
     };
 
     var getChart = function () {
-        return bc.core.cache("chart") || "line";
+        return bc.core.cache("chart") || "overall";
     };
 
     var getRange = function () {
-        return bc.core.cache("range") || 24;
+        return bc.core.cache("range") || 12;
     };
 
     var showLoadingMessage = function () {
@@ -183,29 +201,62 @@ function Dashboard() {
             $("#loading").css("opacity", 0);
         }, 500);
     };
-
 }
 
-function BrightcoveChart(seriesData, chartType) {
+function BrightcoveChart(chartData, chartType) {
     var interval = 3600000;
-    var isWeekView = seriesData.views.length > 24;
+    var isWeekView = chartType !== "io" && chartData.views.length > 24;
     var series = [];
 
     if (chartType === "overall") {
         series.push({
             "name": "Total views",
-            "data": seriesData.views,
-            "pointStart": seriesData.start,
-            "pointInterval": 60 * 60 * 1000
+            "data": chartData.views,
+            "pointStart": chartData.start,
+            "pointInterval": interval
         });
     }
+    else if (chartType === "top") {
+        for (var i = 0; i < Math.min(5, chartData.videos.length); i++) {
+            series.push({
+                "name": chartData.videos[i].title,
+                "data": chartData.videos[i].views,
+                "pointStart": chartData.start,
+                "pointInterval": interval
+            });
+        }
+    }
+    else if (chartType === "io") {
+        var bytesIn = [];
+        var bytesOut = [];
+        var bytesOverhead = [];
+        var points;
 
-    else for (var i = 0; i < Math.min(5, seriesData.videos.length); i++) {
+        points = chartData.data.bytes_in;
+        for (var i in points) {
+            bytesIn.push([parseInt(i), points[i]]);
+        }
         series.push({
-            "name": seriesData.videos[i].title,
-            "data": seriesData.videos[i].views,
-            "pointStart": seriesData.start,
-            "pointInterval": interval
+            "name": "Bytes In",
+            "data": bytesIn
+        });
+
+        points = chartData.data.bytes_out;
+        for (var i in points) {
+            bytesOut.push([parseInt(i), points[i]]);
+        }
+        series.push({
+            "name": "Bytes Out",
+            "data": bytesOut
+        });
+
+        points = chartData.data.bytes_overhead;
+        for (var i in points) {
+            bytesOverhead.push([parseInt(i), points[i]]);
+        }
+        series.push({
+            "name": "Bytes Overhead",
+            "data": bytesOverhead
         });
     }
 
@@ -223,7 +274,16 @@ function BrightcoveChart(seriesData, chartType) {
             text: null
         },
         xAxis: {
-            type: "datetime"
+            type: "datetime",
+            dateTimeLabelFormats: {
+                second: '%H:%M:%S',
+                minute: '%H:%M',
+                hour: '%I:%M%P',
+                day: '%b %e',
+                week: '%b %e',
+                month: '%b \'%y',
+                year: '%Y'
+            }
         },
         yAxis: {
             title: {
@@ -237,7 +297,10 @@ function BrightcoveChart(seriesData, chartType) {
         },
         tooltip: {
             formatter: function() {
-                return "<b>"+ Mark.pipes.chop(this.series.name, 25) + "</b><br/>" + this.y + " views";
+                var name = Mark.pipes.chop(this.series.name, 25);
+                var label = chartType === "io" ? "bytes" : "views";
+                var value = Highcharts.numberFormat(this.y, 0);
+                return "<b>" + name + "</b><br/>" + value + " " + label;
             }
         },
         plotOptions: {
@@ -277,7 +340,7 @@ Mark.pipes.total = function (array) {
 };
 
 Mark.pipes.accounting = function (num) {
-    return accounting.formatNumber(num);
+    return Highcharts.numberFormat(num, 0);
 };
 
 function Pushnotification() {
