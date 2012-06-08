@@ -16,9 +16,7 @@ function Dashboard() {
 
         initState();
 
-        setTimeout(function () {
-            loadUsageData();
-        }, 500);
+        loadUsageData();
     };
 
     var initListeners = function () {
@@ -42,7 +40,7 @@ function Dashboard() {
         bc.device.fetchContentsOfURL(USAGE_URL, handleUsageData, handleError);
     };
 
-    var loadSeriesData = function (range) {
+    var loadSeriesData = function () {
         showLoadingMessage();
 
         var url = SERIES_URL + (range * 60);
@@ -78,7 +76,7 @@ function Dashboard() {
             usageData = data;
         }
 
-        loadSeriesData(range);
+        loadSeriesData();
     };
 
     var handleError = function (error) {
@@ -100,14 +98,14 @@ function Dashboard() {
     };
 
     var handleRangeSelection = function (evt) {
-        var _range = this.getAttribute("data-val");
+        var _range = parseInt(this.getAttribute("data-val"));
 
         if (range !== _range) {
             range = _range;
 
             toggleOption($("#range-opts li"), $(this));
 
-            loadSeriesData(range);
+            loadSeriesData();
         }
     };
 
@@ -155,6 +153,7 @@ function Dashboard() {
     };
 
     var renderChart = function () {
+        console.log("rendering " + chart);
         new BrightcoveChart(chart === "io" ? usageData : seriesData, chart);
     };
 
