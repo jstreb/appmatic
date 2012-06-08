@@ -1,4 +1,6 @@
 var http = require('http');
+var qs = require('qs');
+
 var AUTH_TOKEN = "14f9ad049e4b036b56047a529";
 var ACCOUNT_ID = "665003303001";
 var ACCOUNT_LIMIT_IN_GB = 40;
@@ -8,8 +10,8 @@ var viralSent = false;
 var usageWarningPending = false;
 var usageExceeded = false;
 
-var limitThreshold = .1;
-var viralThreshold = .1;
+var limitThreshold = .9;
+var viralThreshold = .9;
 
 var cached = { 
   "720cache": 0
@@ -33,6 +35,7 @@ function makeMetricCalls() {
 function checkUsage() {
   var to = new Date().getTime();
   var from = to - (43200 * 1000 * 60);
+
   makeAPICall('/analytics-api/data/videocloud/account/' + ACCOUNT_ID + "?from=" + from + "&to=" + to, function( data ) {
     usageCache = JSON.parse( data );
     var bytes = usageCache.data.bytes_out;
@@ -41,22 +44,16 @@ function checkUsage() {
       total += bytes[i] / 1024 / 1024;
     }
     total = total / 1024;
-    if( total > ACCOUNT_LIMIT_IN_GB && !usageExceeded ) {
-      usageExceeded = true;
-      console.log( "exceeded limits!");
-      return;
-    }
     
     if( total > ACCOUNT_LIMIT_IN_GB * limitThreshold && !usageWarningPending) {
       usageWarningPending = true;
-      console.log( "pending" );
+      sendPushMessage( "Ruh-roh, you are approaching your limit.", [{"type": "quota" }] );
       return;
     }
   });
 }
 
 var makeAPICall = function(path, callback){
-  console.log( path );
   var apiResponse = ''
   , options = {
     host: 'data.brightcove.com'
@@ -77,6 +74,38 @@ var makeAPICall = function(path, callback){
 
   return apiResponse;
 };
+
+var sendPushMessage = function( message, data ) {
+  data = JSON.stringify( data );
+  var postData = { 
+    message: message,
+    pairs: data
+  };
+  postData = qs.stringify(postData);
+
+  var postOptions = {
+    host: "bricestacey.com",
+    port: "9292",
+    path: "/push",
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',  
+      'Content-Length': postData.length  
+    }
+  };
+
+  var post_req = http.request(postOptions, function(res) {
+    //res.setEncoding('utf8');
+    res.on('data', function(chunk) {
+      console.log( "push response: " + chunk);
+    });
+  }).on('error', function(e){
+    console.log( "ERROR MAKING POST: " + e );
+  });
+
+  post_req.write(postData);
+  post_req.end();
+}
 
 var makeMediaAPICall = function(path, callback) {
   var apiResponse = ''
@@ -166,6 +195,7 @@ function philDumphy( data ) {
     if( Math.abs( start - end ) > start * .3 ) {
       if( start < end && !viralSent ) {
         viralSent = true;
+        sendPushMessage( "WE WENT VIRAL!", [{ "type": "viral" }] );
         console.log( "WE WENT VIRAL!" );
       }
     }
@@ -226,8 +256,8 @@ exports.usage = function(req, res){
 
 exports.settings = function( req, res ) {
   var settings = req.body;
-  limitThreshold = parseInt( settings.limitThreshold.split( " percent" )[0] );
-  viralThreshold = parseInt( settings.viralThreshold.split( " percent" )[0] );
+  limitThreshold = (100 - parseInt( settings.limitThreshold.split( " percent" )[0] )) / 100;
+  viralThreshold = parseInt( settings.viralThreshold.split( " percent" )[0] ) / 100;
   res.send( { "status": "success" } );
 }
 
