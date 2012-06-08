@@ -117,6 +117,10 @@ nav li.current {
     padding: 10px;
 }
 
+.results li:active {
+    background-color: #444;
+}
+
 .video-still {
     -webkit-box-flex: 1;
     border-radius: 10px;

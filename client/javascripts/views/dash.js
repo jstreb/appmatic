@@ -17,6 +17,7 @@ function Dashboard() {
         $("#chart-opts li").on("tap", handleChartSelection);
         $("#range-opts li").on("tap", handleRangeSelection);
         $("#settings-button").on("tap", handleSettingsTap);
+        $("body").on("tap", ".results li", handleVideoTap);
     };
 
     var restoreState = function () {
@@ -85,6 +86,11 @@ function Dashboard() {
         else {
             $("#settings").hide();
         }
+    };
+
+    var handleVideoTap = function (evt) {
+        var url = this.getAttribute("data-video-url");
+        bc.device.openURI(url, function(){}, function(){}, { modalWebBrowser: true });
     };
 
     var toggleOption = function($list, $listItem) {
@@ -212,6 +218,9 @@ function BrightcoveChart(seriesData, chartType) {
         plotOptions: {
             area: {
                 stacking: "normal"
+            },
+            line: {
+                animation: seriesData.views.length <= (24 * 60)
             }
         },
         legend: {
