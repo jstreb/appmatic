@@ -123,12 +123,11 @@ nav li.current {
 }
 
 .loading {
-    background-color: orange;
+    background-color: red;
     color: white;
     position: absolute;
-    right: 10px;
-    bottom: 10px;
-    border-radius: 5px;
+    right: 60px;
+    top: 10px;
     font-weight: bold;
     font-size: 110%;
     padding: 3px 6px;
