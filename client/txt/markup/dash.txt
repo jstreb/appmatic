@@ -1,0 +1,26 @@
+===== top-ten
+{{views|total|set>global_views}}
+
+<ul class="results">
+    {{videos}}
+        <li data-video-id="{{id}}">
+            <a href="{{url}}"">
+                <img class="video-still" src="{{still}}" width="120" height="80"/>
+            </a>
+            <div class="video-meta">
+                <div class="video-title">{{title}}</div>
+                <div class="video-desc">{{description|tease>15}}</div>
+                <canvas class="video-spark" width="150" height="30" />
+            </div>
+            <div class="video-stats">
+                <div class="video-views">
+                    {{views|total|accounting}} views
+                    <canvas class="video-bar" width="85" height="12" />
+                </div>
+                <div class="video-impressions">
+                    {{impressions|total|accounting}} impressions
+                </div>
+            </div>
+        </li>
+    {{/videos}}
+</ul>

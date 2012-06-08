@@ -1,0 +1,25 @@
+{
+    "name": "Brightcove Video Cloud Mobile Media Monitor",
+    "description": "Hackathon Demo",
+    "version": "1.0",
+    "devices": [
+        "iPhone",
+        "Android"
+    ],
+    "platformConfig": {
+        "android": {
+            "nativeNavigation": false
+        },
+        "iOS": {
+            "nativeNavigation": false
+        }
+    },
+    "views": [
+        {
+            "navigationTitle": "Dashboard",
+            "navigationIcon": "images/icons/dash.png",
+            "uri": "./html/dash.html",
+            "markup": "./txt/markup/dash.txt"
+        }
+    ]
+}

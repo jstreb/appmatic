@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Dashboard</title>
+
+<!-- required meta tags -->
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="bc-manifest" content="../manifest.json" />
+
+<!-- brightcove styles -->
+<link rel="stylesheet" href="../stylesheets/theme-1.10.css" />
+
+<!-- custom styles -->
+<link rel="stylesheet" href="../stylesheets/app.css" />
+
+<!-- brightcove script -->
+<script src="../javascripts/lib/brightcove-app-cloud-1.10.js"></script>
+
+<!-- custom scripts -->
+<script src="../javascripts/lib/moment.min.js"></script> 
+<script src="../javascripts/lib/accounting.min.js"></script> 
+<script src="../javascripts/lib/highcharts.js"></script>
+<script src="../javascripts/lib/highstock-theme.js"></script>
+<script src="../javascripts/lib/spark.js"></script> 
+<script src="../javascripts/views/dash.js"></script> 
+<script>
+var dash;
+
+// initialize the view when bc is ready
+$(bc).bind("init", function () {
+    dash = new Dashboard();
+    dash.init();
+});
+</script>
+
+</head>
+
+<body>
+
+<div id="loading" class="loading">Loading ...</div>
+
+<div class="page">
+    <header>
+        <img id="settings-button" src="../images/settings.png" width="40" height="40"/>
+        <h1>Video Cloud Media Monitor</h1>
+    </header>
+
+    <div id="settings">
+        settings here here
+    </div>
+
+    <nav>
+        <ul id="chart-opts">
+            <li data-val="line">Line</li>
+            <li data-val="area">Stack</li>
+            <!--
+            <li data-val="pie">Pie</li>
+            -->
+        </ul>
+        <ul id="range-opts">
+            <li data-val="12">12h</li>
+            <li data-val="24">24h</li>
+            <li data-val="168">7d</li>
+        </ul>
+    </nav>
+
+    <div id="chart">
+        <!-- highcharts ... -->
+    </div>
+
+    <div class="scroller" id="results-scroll">
+        <div id="results">
+            <!-- wait for it ... -->
+        </div>
+    </div>
+</div>
+
+</body>
+
+</html>
