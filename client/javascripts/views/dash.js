@@ -17,7 +17,7 @@ function Dashboard() {
         initState();
 
         loadUsageData();
-
+        loadSeriesData();
     };
 
     var initListeners = function () {
@@ -63,8 +63,10 @@ function Dashboard() {
             seriesData = data;
         }
 
-        renderChart();
-        renderList();
+        if (seriesData && usageData) {
+            renderChart();
+            renderList();
+        }
     };
 
     var handleUsageData = function (data) {
@@ -77,7 +79,10 @@ function Dashboard() {
             usageData = data;
         }
 
-        loadSeriesData();
+        if (seriesData && usageData) {
+            renderChart();
+            renderList();
+        }
     };
 
     var handleError = function (error) {
