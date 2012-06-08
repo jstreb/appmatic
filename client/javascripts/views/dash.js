@@ -279,3 +279,21 @@ Mark.pipes.total = function (array) {
 Mark.pipes.accounting = function (num) {
     return accounting.formatNumber(num);
 };
+
+function Pushnotification() {
+    $( bc ).bind( "pushnotification", handlePushNotification );
+    
+    function handlePushNotification( data ) {
+       var meta = data.params;
+       
+       if( meta && meta.type === "usage" ) {
+         //show Jeremy
+         return;
+       }
+       
+       if( meta && meta.type === "viral" ) {
+         //show phil
+         return;
+       }
+    }
+}
