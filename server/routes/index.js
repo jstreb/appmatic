@@ -76,6 +76,7 @@ var makeAPICall = function(path, callback){
 };
 
 var sendPushMessage = function( message, data ) {
+  console.log( "sending push message for: " + message );
   data = JSON.stringify( data );
   var postData = { 
     message: message,
