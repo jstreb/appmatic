@@ -170,16 +170,16 @@ function BrightcoveChart(seriesData, chartType) {
     var isWeekView = seriesData.views.length > 24;
     var series = [];
 
-    if (chartType === "line") {
-        // series.push({
-        //     "name": "Total views",
-        //     "data": seriesData.views,
-        //     "pointStart": seriesData.start,
-        //     "pointInterval": 60 * 60 * 1000
-        // });
+    if (chartType === "overall") {
+        series.push({
+            "name": "Total views",
+            "data": seriesData.views,
+            "pointStart": seriesData.start,
+            "pointInterval": 60 * 60 * 1000
+        });
     }
 
-    for (var i = 0; i < Math.min(5, seriesData.videos.length); i++) {
+    else for (var i = 0; i < Math.min(5, seriesData.videos.length); i++) {
         series.push({
             "name": seriesData.videos[i].title,
             "data": seriesData.videos[i].views,
@@ -191,7 +191,7 @@ function BrightcoveChart(seriesData, chartType) {
     var chart = new Highcharts.Chart({
         chart: {
             renderTo: "chart",
-            defaultSeriesType: chartType,
+            defaultSeriesType: "line",
             marginRight: 130,
             marginBottom: 25
         },
