@@ -20,9 +20,9 @@ var cached = {
 var usageCache = {};
 
 //Keep refreshing this data
-setInterval( makeMetricCalls, 120000);
+setInterval( makeMetricCalls, 180000);
 
-setInterval( checkUsage, 60000 );
+setInterval( checkUsage, 180000 );
 
 function makeMetricCalls() {
   for( var i=0; i<TIMES.length; i++) {
@@ -150,6 +150,10 @@ function formatData( vc, ac, al, to, from ) {
  return ret;
 }
 
+function getValueFromString( str ) {
+  return ;
+}
+
 //Check to see if we went viral by looking at the data viewed this hour compared to an hour ago.
 function philDumphy( data ) {
   var start;
@@ -222,8 +226,8 @@ exports.usage = function(req, res){
 
 exports.settings = function( req, res ) {
   var settings = req.body;
-  limitThreshold = settings.limitThreshold;
-  viralThreshold = settings.viralThreshold;
+  limitThreshold = parseInt( settings.limitThreshold.split( " percent" )[0] );
+  viralThreshold = parseInt( settings.viralThreshold.split( " percent" )[0] );
   res.send( { "status": "success" } );
 }
 

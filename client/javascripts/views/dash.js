@@ -1,5 +1,7 @@
 function Dashboard() {
-    var SERIES_URL = "http://10.1.11.124:3000/metrics/";
+    var BASE_URL = "http://localhost:3000";
+    var SERIES_URL = BASE_URL + "/metrics/";
+    var SETTINGS_URL = BASE_URL + "/settings";
 
     var seriesData = null;
     var usageData = null;
@@ -17,7 +19,7 @@ function Dashboard() {
         $("#chart-opts li").on("tap", handleChartSelection);
         $("#range-opts li").on("tap", handleRangeSelection);
         $("#settings-button").on("tap", handleSettingsTap);
-        $("body").on("tap", ".results li", handleVideoTap);
+        $(".save-button").on("tap", handleSaveSettings);
     };
 
     var restoreState = function () {
@@ -85,8 +87,26 @@ function Dashboard() {
         }
         else {
             $("#settings").hide();
+            $( ".save-button" ).html( "Save" );
         }
     };
+    
+    var handleSaveSettings = function () {
+        function success(data) {
+            $( ".save-button" ).html( "Saved" );
+            setTimeout( handleSettingsTap, 500 );
+        }
+        
+        function error( data ) {
+          console.log( "Something went wrong." + data );
+        }
+        var data = {
+            limitThreshold: $( "#limitThreshold" ).val(),
+            viralThreshold: $( "#viralThreshold" ).val()
+        }
+        bc.device.postDataToURL( SETTINGS_URL, success, error, { data: data } );
+        $( ".save-button" ).html( "Saving..." );
+    }
 
     var handleVideoTap = function (evt) {
         var url = this.getAttribute("data-video-url");

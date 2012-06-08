@@ -28,13 +28,46 @@ header {
 
 #settings {
     width: 300px;
-    height: 300px;
-    background-color: yellow;
+    background-color: #ccc;
     border-radius: 10px;
     position: absolute;
     z-index: 1000;
     right: 10px;
     display: none;
+    padding: 20px;
+    border: solid 2px #3b3b3b;
+}
+
+#settings div {
+    margin: 20px 0px;
+    height: 45px;
+}
+
+#settings div label {
+    float: left;
+    color: #3b3b3b;
+}
+
+#settings div select {
+  float: right;
+}
+
+#settings .save-button {
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#7d7e7d), color-stop(100%,#0e0e0e));
+    color: white;
+    border-radius: 25px;
+    border: 3px solid #3b3b3b;
+    padding: 3px 8px;
+    min-width: 40px;
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+    height: auto;
+}
+
+#settings .save-button:hover {
+    border: 3px solid lime;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#0e0e0e), color-stop(100%,#7d7e7d));
 }
 
 h1 {
