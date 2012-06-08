@@ -47,7 +47,7 @@ function checkUsage() {
     
     if( total > ACCOUNT_LIMIT_IN_GB * limitThreshold && !usageWarningPending) {
       usageWarningPending = true;
-      sendPushMessage( "Ruh-roh, you are approaching your limit.", [{"type": "quota" }] );
+      sendPushMessage( "Ruh-roh, you are approaching your limit.", [{"key": "type", "value": "quota" }] );
       return;
     }
   });
@@ -195,7 +195,7 @@ function philDumphy( data ) {
     if( Math.abs( start - end ) > start * .3 ) {
       if( start < end && !viralSent ) {
         viralSent = true;
-        sendPushMessage( "WE WENT VIRAL!", [{ "type": "viral" }] );
+        sendPushMessage( "WE WENT VIRAL!", [{ "key": "type", "value": "viral" }] );
         console.log( "WE WENT VIRAL!" );
       }
     }
