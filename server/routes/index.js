@@ -11,7 +11,7 @@ var usageWarningPending = false;
 var usageExceeded = false;
 
 var limitThreshold = .9;
-var viralThreshold = .9;
+var viralThreshold = undefined;
 
 var cached = { 
   "720cache": 0
@@ -193,7 +193,7 @@ function philDumphy( data ) {
     start = makeArray( data[i].data.video_view )[0];
     end = makeArray( data[i].data.video_view )[22];
     
-    if( Math.abs( start - end ) > start * viralThreshold) {
+    if( viralThreshold && Math.abs( start - end ) > start * viralThreshold) {
       if( start < end && !viralSent ) {
         viralSent = true;
         sendPushMessage( "WE WENT VIRAL!", [{ "key": "type", "value": "viral" }] );
