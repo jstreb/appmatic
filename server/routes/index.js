@@ -193,7 +193,7 @@ function philDumphy( data ) {
     start = makeArray( data[i].data.video_view )[0];
     end = makeArray( data[i].data.video_view )[22];
     
-    if( Math.abs( start - end ) > start * .3 ) {
+    if( Math.abs( start - end ) > start * viralThreshold) {
       if( start < end && !viralSent ) {
         viralSent = true;
         sendPushMessage( "WE WENT VIRAL!", [{ "key": "type", "value": "viral" }] );
