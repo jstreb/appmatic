@@ -7,7 +7,9 @@ var TIMES = [720, 1440, 10080];
 var viralSent = false;
 var usageWarningPending = false;
 var usageExceeded = false;
-var limitTreshhold = .1;
+
+var limitThreshold = .1;
+var viralThreshold = .1;
 
 var cached = { 
   "720cache": 0
@@ -45,7 +47,7 @@ function checkUsage() {
       return;
     }
     
-    if( total > ACCOUNT_LIMIT_IN_GB * limitTreshhold && !usageWarningPending) {
+    if( total > ACCOUNT_LIMIT_IN_GB * limitThreshold && !usageWarningPending) {
       usageWarningPending = true;
       console.log( "pending" );
       return;
@@ -217,6 +219,13 @@ exports.metrics = function(req, res){
 exports.usage = function(req, res){
   res.send( usageCache );
 };
+
+exports.settings = function( req, res ) {
+  var settings = req.body;
+  limitThreshold = settings.limitThreshold;
+  viralThreshold = settings.viralThreshold;
+  res.send( { "status": "success" } );
+}
 
 makeMetricCalls();
 
