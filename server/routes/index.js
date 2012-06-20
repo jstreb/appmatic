@@ -2,7 +2,7 @@ var http = require('http');
 var qs = require('qs');
 
 var AUTH_TOKEN = "14f984230e4b036b56047a514";
-var ACCOUNT_ID = "78527748001 ";
+var ACCOUNT_ID = "78527748001";
 var ACCOUNT_LIMIT_IN_GB = 40;
 var MEDIA_API_TOKEN = "2nRaGSxaCZei0RxzbazOpI56reATcuRaz5p2R7dh8N35gVyFjUoybg..";
 var TIMES = [720, 1440, 10080];
